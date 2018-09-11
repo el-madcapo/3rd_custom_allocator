@@ -1,0 +1,23 @@
+language: cpp
+before_install:   
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+
+install:
+  - sudo apt-get install libboost-test-dev -y 
+  - sudo apt-get install -qq g++-8
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
+
+script: 
+ - CXX=/usr/bin/g++-8 CC=/usr/bin/gcc-8 
+ - cmake .
+ - cmake --build .
+ - cmake --build . --target test
+ - cmake --build . --target package
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script:
+  - curl -T allocator-0.8.$TRAVIS_BUILD_NUMBER-Linux.deb -utestmepleases:$API_BINTRAY_KEY "https://api.bintray.com/content/testmepleases/allocator/allocator/$TRAVIS_BUILD_NUMBER/allocator-0.8.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+
